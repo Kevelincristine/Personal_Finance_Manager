@@ -1,0 +1,30 @@
+section class = "tela inical"{
+h1 - sejA BEM VINDO ao nosso APP de gerenciamento financiero !
+input - qual é seu nome?
+input - digite o saldo inicial
+button- começar
+
+}
+section class = "tela global"{
+h2 - Olá [nome].
+h1 - [saldo digitado]
+
+p - texto esplicativo
+
+article id - mudanças {
+  h2 
+    valor.
+    tipo.
+    categoria.
+    button enviar
+}
+article id - historico {
+     < [ mes conforme a data] >
+     [ mudanças conforme o historico da pessoa]
+
+}
+footer - about me {
+    meu github e meu portfolio
+}
+
+}
