@@ -38,7 +38,9 @@ window.addEventListener("load",()=>{
         document.querySelector("#user-name").textContent = savedName;
         document.querySelector("#balance").textContent = savedbalance;
     }
-  renderHistory();
+  const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+renderHistory(transactions);
+
 })
 
 const tranValue = document.querySelector("#transaction-value");
@@ -70,7 +72,7 @@ addBtn.addEventListener("click",()=>{
 
 
    const now = new Date();
-   const date = now.toLocaleDateString("pt-BR");
+   const date = now.toISOString().split("T")[0];
    const time= now.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit"
@@ -114,7 +116,36 @@ addBtn.addEventListener("click",()=>{
           balance -= item.value;
         }
       });
-       
-
-
+  
   }
+  function renderHistory(list){
+  const history = document.querySelector("#history");
+  history.innerHTML = "";
+
+  list.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = `${item.date} ${item.time} | ${item.category} | ${item.type} | $ ${item.value}`;
+    history.appendChild(li);
+  });
+}
+
+ const btnSearch = document.querySelector("#search-btn");
+
+btnSearch.addEventListener("click", ()=>{
+  const searchDate = document.querySelector("#search-date").value;
+
+  if (searchDate === "") {
+    alert("Select a date");
+    return;
+  }
+
+  const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+
+  const filtered = transactions.filter(item => item.date === searchDate);
+
+  renderHistory(filtered);
+});
+
+  
+
+  
