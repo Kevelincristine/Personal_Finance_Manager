@@ -62,6 +62,7 @@
           <option>Food</option>
           <option>Study</option>
           <option>Leisure</option>
+          <option>Other...</option>
         </select>
       </label>
 
@@ -70,23 +71,10 @@
     <!-- END TRANSACTION -->
 
     <!-- HISTORY -->
-    <article id="history">
+    <article id="history-container">
       <h2>History</h2>
 
-      <label>
-        Filter by month
-        <select id="month-filter">
-          <option value="all">All</option>
-          <option value="01">January</option>
-          <option value="02">February</option>
-          <option value="03">March</option>
-        </select>
-      </label>
-
-      <ul id="transaction-list">
-        <li>+ Food — $200</li>
-        <li>- Leisure — $50</li>
-      </ul>
+      <ul id="history"></ul>
     </article>
     <!-- END HISTORY -->
 
