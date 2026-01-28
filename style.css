@@ -28,7 +28,8 @@ body{
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 .title{
-     max-width: 90%;
+     max-width: 100%;
+     font-size: clamp(1.8rem, 6vw, 3rem);
      text-align: center;
 }
 .word{
@@ -55,66 +56,52 @@ body{
    position: fixed;
    inset: 0;
 
-   padding: 8vh 0 6vh;
-   width: 100vw;
-   height: 100vh;
+   padding: 2rem 1rem;
+   width: 100%;
+   height: 100%;
    display: flex;
    flex-flow: column ;
-
-   
-   margin: 20px;
-   justify-content: space-around;
+   justify-content: center;
+   align-items: center;
   
-   z-index: 1000;
-    padding-bottom: 10vh;
+   overflow-y: auto;
 }
 .start-screen p {
     font-weight: bolder;
     text-align: center;
 }
 #start-container{
-   width: 50vw;
+  width: 100%;
+  max-width: 400px;
    max-height: 500px;
 
    display: flex;
    flex-direction: column;
    gap: 1rem;
-   align-items: flex-start;
-
-   align-items: flex-start;
-    margin-bottom: 3vh;
-    font-size: large;
-    margin-left: 1em;
+   justify-content: center;
 
     }
-#start-container input {
-  width: 70vw;
-  height: 30px;
-  border: 2px solid var(--text-main);
-  box-shadow: 2px 1px 2px rgba(0, 0, 0, 0.301);
+#start-container input,
+#start-container button {
+    width: 100%;
+    height: 40px;
 }
+
 #start-container button{
+   font-size: 1rem;
    background-color: var(--primary);
-   border: 0;
-   padding: 10px;
-   width: 70vw;
-   transition: background-color 0.5s, color 0.5s;
+   color: var(--text-muted);
+   border-radius: 6px;
+   border: transparent;
+   transition: background-color 0.5s;
 }
 #start-container button:hover{
     background-color: var(--secondary);
-    color: var(--text-muted);
 }
-
 @media screen and ( min-width: 768px) {
     .start-screen{
-        font-size: xx-large;
-          align-items: center;
+        gap: 3rem;;
+        width: 100%;
         
-    }
-    #start-container input{
-     width: 50vw;
-    }
-    #start-container button {
-        width: 50vw;
     }
 }
