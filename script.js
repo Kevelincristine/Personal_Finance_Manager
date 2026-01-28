@@ -38,8 +38,8 @@ window.addEventListener("load",()=>{
         document.querySelector("#user-name").textContent = savedName;
         document.querySelector("#balance").textContent = savedbalance;
     }
-  const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-renderHistory(transactions);
+
+    renderHistory();
 
 })
 
@@ -93,18 +93,6 @@ addBtn.addEventListener("click",()=>{
   }
   
   });
-
-  function renderHistory(){
-    const history = document.querySelector("#history");
-    history.innerHTML = "";
-
-    const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-    transactions.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent =  `${item.date} ${item.time} | ${item.category} | ${item.type} | $ ${item.value}`;
-      history.appendChild(li);
-    });
-  }
   function calculateBalance(){
       const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
       let balance = 0;
@@ -118,16 +106,19 @@ addBtn.addEventListener("click",()=>{
       });
   
   }
-  function renderHistory(list){
+ function renderHistory(list = null){
   const history = document.querySelector("#history");
   history.innerHTML = "";
 
-  list.forEach(item => {
+  const transactions = list !== null ? list : JSON.parse(localStorage.getItem("transactions")) || [];
+
+  transactions.forEach(item => {
     const li = document.createElement("li");
     li.textContent = `${item.date} ${item.time} | ${item.category} | ${item.type} | $ ${item.value}`;
     history.appendChild(li);
   });
 }
+
 
  const btnSearch = document.querySelector("#search-btn");
 
@@ -145,7 +136,12 @@ btnSearch.addEventListener("click", ()=>{
 
   renderHistory(filtered);
 });
-
+function addEvery(){
+  const  btneverything = document.querySelector("#every");
+  btneverything.addEventListener("click",()=>{
+    renderHistory();
+  } );
+}
   
 
   
