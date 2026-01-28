@@ -136,12 +136,27 @@ btnSearch.addEventListener("click", ()=>{
 
   renderHistory(filtered);
 });
-function addEvery(){
+
   const  btneverything = document.querySelector("#every");
   btneverything.addEventListener("click",()=>{
     renderHistory();
   } );
-}
-  
+  const letters = document.querySelectorAll(".title span");
+
+  letters.forEach((letter, index) => {
+    letter.style.animationDelay = `${index * 0.10}s`;
+  })
+
+  const colors = [
+    " #4361ee",
+    "#7209b7",
+    "#f72585",
+    "#ffbe0b"
+  ]
+  const colorLetters = document.querySelectorAll(".title span span");
+
+  colorLetters.forEach((cletters,index)=>{
+    cletters.style.color = colors[index % colors.length];
+  })
 
   
