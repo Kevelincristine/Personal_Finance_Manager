@@ -1,6 +1,4 @@
- .app-hidden{
-    display: none;
-}
+ 
 :root{
   
   --bg-main: #ffffff;
@@ -8,6 +6,7 @@
   
   /* Paleta de 5 Cores */
   --primary: #4361ee;   
+  --primarytwo: #273ea5; 
   --secondary: #7209b7;  
   --accent: #f72585;   
   --success: #f72585;   
@@ -16,12 +15,19 @@
   /* Cores de Texto */
   --text-main: #2b2d42; 
   --text-muted: #dadfe9;
+   --text-mutedtwo: #999ba0;
 }
 *{
     padding: 0px;
     margin: 0px;
     box-sizing: border-box;
 }
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
 body{
     background-color:var(--bg-main);
     color: var(--text-main);
@@ -98,6 +104,146 @@ body{
 #start-container button:hover{
     background-color: var(--secondary);
 }
+
+.app-hidden{
+    
+  height: 100vh;
+  overflow-y: auto;
+  
+  position: fixed;
+  inset: 0;
+  font-size: large;
+  display: flex;
+  flex-direction: column;
+  
+  background-color:var(--bg-main) ;
+}
+.hidden {
+  display: none !important;
+}
+
+
+.app-hidden header{
+   height: 10rem;
+   padding: 20px;
+   width: 100vw;
+   background-color: var(--primary);
+    color: var(--text-muted);
+}
+.app-hidden header h1 {
+  text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.308);
+}
+.app-hidden header #user-name{
+    color: var(--primarytwo);
+}
+#transactions{
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    background-color: var(--bg-soft);
+    
+}
+#transactions h2 {
+    color: var(--success);
+    text-align: center;
+    margin: 10px;
+}
+#transactions label {
+    color:var(--warning);
+   
+    font-weight: bolder;
+    padding: 20px;
+    margin: auto;
+   
+
+}
+#transactions input {
+     background-color: var(--bg-soft);
+     border:1px solid var(--text-mutedtwo);
+     color: var(--text-main);
+     width: 20rem;
+     height: 30px;
+     border-radius: 5px;
+}
+#transactions select {
+    background-color: var(--bg-soft);
+    color: var(--text-main);
+    border:1px solid var(--text-mutedtwo) ;
+    width: 20rem;
+     height: 30px;
+     border-radius: 5px;
+}
+#transactions button {
+    width: 16rem;
+    background-color: var(--accent);
+    color: var(--text-muted);
+    border-radius: 5px;
+    padding: 10px;
+    border: transparent;
+    margin: auto;
+    transition: background-color 0.5s;
+}
+#transactions button:hover{
+    background-color: var(--secondary);
+}
+.app-content{
+  width: 100%;
+  max-width: 400px;
+}
+#history-container {
+    width: 100vw;
+    
+}
+#history-container h2{
+  color: var(--secondary);
+  text-align: center;
+  margin: 20px;
+  
+
+ 
+}
+#history-container input, 
+#history-container button {
+    background-color: var(--text-muted);
+    color: var(--secondary);
+    border: transparent;
+    padding: 10px;
+    margin: 20px;
+    
+} 
+
+#history-container button:hover{
+    background-color: var(--primary);
+    color: var(--primarytwo);
+}
+#history-container ul {
+    background-color: var(--text-muted);
+    
+    font-weight: bold;
+    margin: 20px;
+   
+    width: 90vw;
+    list-style: none;
+    padding: 5px;
+    
+}
+#history-container li {
+
+}
+
+footer{
+
+  padding: 1rem;
+  text-align: center;
+  background-color: var(--primary);
+   color: var(--text-muted);
+   font-weight: bolder;
+  }
+  footer a {
+    text-decoration: none;
+    color: var(--text-main);
+  }
+
 @media screen and ( min-width: 768px) {
     .start-screen{
         gap: 3rem;;
