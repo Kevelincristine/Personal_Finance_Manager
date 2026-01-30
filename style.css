@@ -241,6 +241,10 @@ footer{
   background-color: var(--primary);
    color: var(--text-muted);
    font-weight: bolder;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+   height: 100%;
   }
   footer a {
     text-decoration: none;
@@ -278,18 +282,26 @@ footer{
   }
   .app-hidden{
     font-size: large;
+    display: flex;
+    
   }
   .app-hidden .header-content{
    display: flex;
    flex-flow: column;
    justify-content: center;
+   
   }
 
   #transactions {
     gap: 1.5rem;
+    flex-flow: row wrap ;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+     text-align: center;
 
   }
-
+  
   footer {
     font-size: 1.1rem;
   }
