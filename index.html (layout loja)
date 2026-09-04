@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Feira Nuzzi — Modo Loja</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --bg-header: #161616;
+      --texto: #f5f5f5;
+      --texto-sec: #a1a1a6;
+      --azul: #0A84FF;
+      --vermelho: #FF453A;
+      --verde: #30D158;
+      --laranja: #FF9F0A;
+      --borda: #2c2c2e;
+      --card-bg: #1c1c1e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--texto); }
+    .app { width: 100%; height: 100%; height: 100dvh; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+    .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background: var(--bg); }
+    .screen.active { display: flex; }
+
+    .header { padding: 12px 16px 10px; padding-top: max(12px, env(safe-area-inset-top)); background: var(--bg-header); border-bottom: 1px solid var(--borda); flex-shrink: 0; z-index: 20; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    .logo-texto { font-size: 22px; font-weight: 800; color: var(--azul); letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px; }
+    .logo-texto img { height: 28px; width: auto; display: block; }
+    .modo-loja-tag { font-size: 11px; font-weight: 700; color: var(--laranja); background: rgba(255,159,10,0.14); padding: 3px 8px; border-radius: 8px; letter-spacing: 0.3px; }
+
+    .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; padding-bottom: 90px; background: var(--bg); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 12px; }
+    .section-title { font-size: 18px; font-weight: 700; color: var(--texto); }
+    .ver-mais { font-size: 14px; color: var(--azul); font-weight: 600; cursor: pointer; }
+
+    .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: calc(70px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--bg-header); border-top: 1px solid var(--borda); display: flex; justify-content: space-around; align-items: center; z-index: 30; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: #8e8e93; width: 70px; padding: 6px 0; cursor: pointer; }
+    .nav-item.active { color: var(--azul); }
+    .nav-icon { font-size: 22px; }
+
+    .detail-header { padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--borda); flex-shrink: 0; background: var(--bg-header); z-index: 20; }
+    .back-btn { width: 40px; height: 40px; border-radius: 50%; background: #2c2c2e; display: flex; align-items: center; justify-content: center; font-size: 18px; border: none; color: var(--texto); font-weight: 600; flex-shrink: 0; cursor: pointer; }
+    .back-btn:active { opacity: 0.7; }
+    .detail-title { font-size: 17px; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--texto); }
+    .header-action { font-size: 14px; font-weight: 700; color: var(--azul); background: none; border: none; padding: 8px; flex-shrink: 0; cursor: pointer; }
+    .header-action:active { opacity: 0.7; }
+
+    .loja-card { display: flex; align-items: center; gap: 12px; }
+    .loja-logo-wrap { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
+    .loja-logo { width: 56px; height: 56px; border-radius: 16px; object-fit: cover; background: #2c2c2e; border: 1.5px solid var(--borda); display: block; }
+
+    .status-toggle-row { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); border: 1px solid var(--borda); border-radius: 16px; padding: 14px 16px; margin-top: 16px; }
+    .status-toggle-label { display: flex; flex-direction: column; gap: 2px; }
+    .status-toggle-title { font-size: 15px; font-weight: 650; color: var(--texto); }
+    .status-toggle-sub { font-size: 12.5px; color: var(--texto-sec); }
+    .status-toggle-sub.aberto { color: var(--verde); }
+    .status-toggle-sub.fechado { color: var(--vermelho); }
+    .switch { position: relative; width: 51px; height: 31px; flex-shrink: 0; cursor: pointer; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-track { position: absolute; inset: 0; background: #39393d; border-radius: 999px; transition: background .2s; }
+    .switch-thumb { position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; background: #fff; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+    .switch input:checked + .switch-track { background: var(--verde); }
+    .switch input:checked + .switch-track .switch-thumb { transform: translateX(20px); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--borda); border-radius: 14px; padding: 12px 10px; text-align: left; }
+    .stat-valor { font-size: 20px; font-weight: 800; color: var(--texto); line-height: 1.1; }
+    .stat-label { font-size: 11px; color: var(--texto-sec); margin-top: 4px; font-weight: 500; }
+
+    .chart-box { background: var(--card-bg); border: 1px solid var(--borda); border-radius: 16px; padding: 16px; margin-top: 18px; }
+    .chart-title { font-size: 14px; font-weight: 650; color: var(--texto-sec); margin-bottom: 12px; letter-spacing: 0.3px; }
+    .bar-chart { display: flex; align-items: flex-end; justify-content: space-around; height: 120px; gap: 6px; }
+    .bar-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .bar { width: 100%; max-width: 32px; border-radius: 6px 6px 0 0; background: var(--azul); min-height: 4px; transition: height 0.3s; }
+    .bar-label { font-size: 10px; color: var(--texto-sec); margin-top: 6px; }
+
+    .pedido-card, .produto-card { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--borda); align-items: center; }
+    .pedido-card { cursor: pointer; }
+    .pedido-card:active { background: #1a1a1c; }
+    .pedido-icon { width: 44px; height: 44px; border-radius: 12px; background: #2c2c2e; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .pedido-info { flex: 1; min-width: 0; }
+    .pedido-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .pedido-cliente { font-size: 15px; font-weight: 650; color: var(--texto); }
+    .pedido-itens { font-size: 13px; color: var(--texto-sec); margin-top: 2px; line-height: 1.3; }
+    .pedido-hora { font-size: 12px; color: var(--texto-sec); margin-top: 4px; }
+    .pedido-valor { font-size: 14.5px; font-weight: 700; color: var(--texto); white-space: nowrap; }
+
+    .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 8px; letter-spacing: 0.2px; }
+    .badge-pendente { background: rgba(255,159,10,0.15); color: var(--laranja); }
+    .badge-preparo { background: rgba(10,132,255,0.15); color: var(--azul); }
+    .badge-pronto { background: rgba(48,209,88,0.15); color: var(--verde); }
+    .badge-cancelado { background: rgba(255,69,58,0.15); color: var(--vermelho); }
+
+    .produto-card-img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: #2c2c2e; }
+    .produto-card-info { flex: 1; min-width: 0; }
+    .produto-card-nome { font-size: 15px; font-weight: 650; color: var(--texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .produto-card-desc { font-size: 12.5px; color: var(--texto-sec); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .produto-card-bottom { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+    .produto-card-preco { font-size: 14.5px; font-weight: 700; color: var(--vermelho); }
+    .toggle-pill { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 7px; }
+    .toggle-pill.on { background: rgba(48,209,88,0.15); color: var(--verde); }
+    .toggle-pill.off { background: rgba(142,142,147,0.18); color: #8e8e93; }
+    .estoque-badge { font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.06); padding: 2px 10px; border-radius: 20px; color: var(--texto-sec); }
+
+    .produto-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .icon-btn { width: 36px; height: 36px; border-radius: 10px; background: #2c2c2e; border: none; color: var(--texto-sec); font-size: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .icon-btn:active { opacity: 0.7; }
+    .icon-btn.danger { color: var(--vermelho); }
+
+    .fab { position: absolute; right: 18px; bottom: calc(86px + env(safe-area-inset-bottom)); width: 56px; height: 56px; border-radius: 50%; background: var(--azul); color: #fff; border: none; font-size: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(10,132,255,0.4); z-index: 25; cursor: pointer; }
+    .fab:active { transform: scale(0.94); }
+
+    .form-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px 16px; padding-bottom: 40px; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 13px; font-weight: 650; color: var(--texto-sec); margin-bottom: 7px; display: block; text-transform: uppercase; letter-spacing: 0.3px; }
+    .form-input, .form-textarea, .form-select { width: 100%; background: var(--card-bg); border: 1px solid var(--borda); border-radius: 12px; padding: 13px 14px; font-size: 15px; color: var(--texto); outline: none; }
+    .form-input::placeholder, .form-textarea::placeholder { color: #6e6e73; }
+    .form-textarea { resize: none; min-height: 90px; line-height: 1.4; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+    .form-select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%238e8e93' stroke-width='1.6' fill='none' fill-rule='evenodd'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; }
+
+    .img-upload-box { width: 100%; height: 140px; border: 1.5px dashed var(--borda); border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--texto-sec); background: var(--card-bg); overflow: hidden; position: relative; cursor: pointer; }
+    .img-upload-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .img-upload-icon { font-size: 26px; }
+    .img-upload-text { font-size: 13px; font-weight: 550; }
+
+    .btn-primary { width: 100%; background: var(--azul); color: white; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700; margin-top: 6px; cursor: pointer; }
+    .btn-primary:active { opacity: 0.9; transform: scale(0.985); }
+    .btn-outline { width: 100%; background: transparent; color: var(--vermelho); border: 1.5px solid rgba(255,69,58,0.4); border-radius: 14px; padding: 15px; font-size: 15px; font-weight: 650; margin-top: 10px; cursor: pointer; }
+    .btn-outline:active { opacity: 0.7; }
+
+    .placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 55vh; padding: 40px 20px; text-align: center; color: var(--texto-sec); }
+    .placeholder-icon { font-size: 48px; margin-bottom: 16px; }
+    .placeholder-title { font-size: 20px; font-weight: 700; color: var(--texto); margin-bottom: 8px; }
+    .placeholder-text { font-size: 15px; line-height: 1.4; margin-bottom: 18px; }
+
+    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 60; display: none; align-items: flex-end; justify-content: center; }
+    .sheet-overlay.active { display: flex; }
+    .sheet { width: 100%; max-width: 480px; max-height: 82vh; overflow-y: auto; background: var(--bg-header); border-radius: 20px 20px 0 0; padding: 10px 18px calc(22px + env(safe-area-inset-bottom)); }
+    .sheet-handle { width: 36px; height: 4px; background: #48484a; border-radius: 3px; margin: 6px auto 16px; }
+    .sheet-title { font-size: 18px; font-weight: 750; color: var(--texto); margin-bottom: 2px; }
+    .sheet-sub { font-size: 13px; color: var(--texto-sec); margin-bottom: 16px; }
+    .sheet-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--borda); font-size: 14.5px; }
+    .sheet-row:last-of-type { border-bottom: none; }
+    .sheet-row-label { color: var(--texto-sec); }
+    .sheet-row-value { color: var(--texto); font-weight: 600; text-align: right; }
+    .sheet-actions { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+
+    .banner-edit-wrap { position: relative; width: 100%; height: 150px; background: #2c2c2e; cursor: pointer; }
+    .banner-edit-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .banner-edit-btn { position: absolute; right: 12px; bottom: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); color: #fff; border: none; padding: 8px 12px; border-radius: 10px; font-size: 12.5px; font-weight: 650; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .logo-edit-wrap { position: relative; width: 84px; height: 84px; margin: -42px auto 0; cursor: pointer; }
+    .logo-edit-wrap img { width: 84px; height: 84px; border-radius: 22px; object-fit: cover; border: 3px solid var(--bg); background: #2c2c2e; display: block; }
+    .logo-edit-btn { position: absolute; right: -4px; bottom: -4px; width: 30px; height: 30px; border-radius: 50%; background: var(--azul); border: 3px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= PAINEL ================= -->
+  <div class="screen active" id="painel">
+    <div class="header">
+      <div class="top-bar">
+        <div class="logo-area">
+          <div class="logo-texto">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30'%3E%3Ctext x='0' y='22' font-family='Arial, sans-serif' font-size='22' font-weight='800' fill='%230A84FF'%3Efeira nuzzi%3C/text%3E%3C/svg%3E" alt="feira nuzzi">
+            <span class="modo-loja-tag">MODO LOJA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="loja-card">
+        <div class="loja-logo-wrap">
+          <img class="loja-logo" id="painel-logo" src="" alt="Logo" onerror="this.style.visibility='hidden'">
+        </div>
+        <div class="loja-info">
+          <div class="loja-nome" id="painel-nome">Minha barraca</div>
+          <div class="loja-categoria" id="painel-categoria">Adicione uma categoria</div>
+        </div>
+      </div>
+
+      <div class="status-toggle-row">
+        <div class="status-toggle-label">
+          <div class="status-toggle-title">Status da loja</div>
+          <div class="status-toggle-sub" id="status-sub">Fechado</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="status-switch" onchange="alternarStatus()">
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </label>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-valor" id="stat-produtos">0</div><div class="stat-label">Produtos</div></div>
+        <div class="stat-card"><div class="stat-valor" id="stat-pedidos">0</div><div class="stat-label">Pedidos hoje</div></div>
+        <div class="stat-card"><div class="stat-valor" id="stat-vendas">R$ 0</div><div class="stat-label">Vendido hoje</div></div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">📊 Vendas (últimos 7 dias)</div>
+        <div class="bar-chart" id="chart-vendas"></div>
+      </div>
+
+      <div class="section-header" style="margin-top:22px;">
+        <div class="section-title">Pedidos recentes</div>
+        <div class="ver-mais" onclick="irPara('pedidos')">Ver todos ›</div>
+      </div>
+      <div id="lista-pedidos-recentes"></div>
+      <div id="pedidos-vazio" style="display:none; text-align:center; padding:24px 0; color:var(--texto-sec); font-size:14px;">Nenhum pedido recebido ainda.</div>
+    </div>
+    <div class="bottom-nav" id="nav-painel"></div>
+  </div>
+
+  <!-- ================= PRODUTOS ================= -->
+  <div class="screen" id="produtos">
+    <div class="header">
+      <div class="top-bar">
+        <div class="logo-texto" style="font-size:20px">Produtos</div>
+        <div class="ver-mais" id="produtos-contador" style="color:var(--texto-sec); font-weight:600;"></div>
+      </div>
+    </div>
+    <div class="content" id="produtos-content">
+      <div id="lista-produtos"></div>
+      <div class="placeholder" id="produtos-vazio">
+        <div class="placeholder-icon">🧺</div>
+        <div class="placeholder-title">Nenhum produto cadastrado</div>
+        <div class="placeholder-text">Adicione seu primeiro item com estoque.</div>
+        <button class="btn-primary" onclick="abrirFormProduto()">Adicionar produto</button>
+      </div>
+    </div>
+    <button class="fab" onclick="abrirFormProduto()">+</button>
+    <div class="bottom-nav" id="nav-produtos"></div>
+  </div>
+
+  <!-- ================= FORM PRODUTO ================= -->
+  <div class="screen" id="produto-form">
+    <div class="detail-header">
+      <button class="back-btn" onclick="irPara('produtos')">←</button>
+      <div class="detail-title" id="form-titulo">Novo produto</div>
+      <button class="header-action" onclick="salvarProduto()">Salvar</button>
+    </div>
+    <div class="form-content">
+      <div class="form-group">
+        <label class="form-label">Foto</label>
+        <div class="img-upload-box" id="produto-img-preview" onclick="document.getElementById('produto-img-input').click()">
+          <img id="produto-img-tag" style="display:none;" alt="">
+          <div class="img-upload-icon" id="produto-img-icon">📷</div>
+          <div class="img-upload-text" id="produto-img-text">Toque para adicionar</div>
+        </div>
+        <input type="file" id="produto-img-input" accept="image/*" style="display:none" onchange="handleProdutoImagem(event)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="input-nome" placeholder="Ex: X-Salada">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea class="form-textarea" id="input-desc" placeholder="Ingredientes..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Preço</label>
+          <input class="form-input" id="input-preco" placeholder="R$ 0,00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estoque</label>
+          <input class="form-input" id="input-estoque" type="number" placeholder="Qtd" value="10">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <input class="form-input" id="input-categoria-produto" placeholder="Ex: Lanches">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Disponível</label>
+        <select class="form-select" id="input-disponivel">
+          <option value="1">Sim</option>
+          <option value="0">Não</option>
+        </select>
+      </div>
+      <button class="btn-outline" id="btn-excluir-produto" style="display:none;" onclick="excluirProduto()">Excluir produto</button>
+    </div>
+  </div>
+
+  <!-- ================= PEDIDOS ================= -->
+  <div class="screen" id="pedidos">
+    <div class="header">
+      <div class="top-bar">
+        <div class="logo-texto" style="font-size:20px">Pedidos</div>
+      </div>
+    </div>
+    <div class="content">
+      <div id="lista-pedidos-todos"></div>
+      <div class="placeholder" id="pedidos-todos-vazio">
+        <div class="placeholder-icon">📋</div>
+        <div class="placeholder-title">Nenhum pedido</div>
+        <div class="placeholder-text">Os pedidos feitos pelos clientes aparecerão aqui.</div>
+      </div>
+    </div>
+    <div class="bottom-nav" id="nav-pedidos-tela"></div>
+  </div>
+
+  <!-- ================= SHEET PEDIDO ================= -->
+  <div class="sheet-overlay" id="sheet-overlay" onclick="if(event.target===this) fecharSheet()">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div id="sheet-content"></div>
+    </div>
+  </div>
+
+  <!-- ================= PERFIL LOJA ================= -->
+  <div class="screen" id="loja">
+    <div class="header">
+      <div class="top-bar">
+        <div class="logo-texto" style="font-size:20px">Minha loja</div>
+      </div>
+    </div>
+    <div class="content" style="padding:0 0 90px;">
+      <div class="banner-edit-wrap" onclick="document.getElementById('loja-banner-input').click()">
+        <img id="loja-banner-preview" src="" alt="" style="display:none;">
+        <button class="banner-edit-btn" type="button">📷 Trocar capa</button>
+      </div>
+      <input type="file" id="loja-banner-input" accept="image/*" style="display:none" onchange="handleLojaImagem(event, 'banner')">
+
+      <div class="logo-edit-wrap" onclick="document.getElementById('loja-logo-input').click()">
+        <img id="loja-logo-preview" src="" alt="" style="display:none;">
+        <div class="logo-edit-btn">📷</div>
+      </div>
+      <input type="file" id="loja-logo-input" accept="image/*" style="display:none" onchange="handleLojaImagem(event, 'logo')">
+
+      <div class="form-content" style="padding-top:14px;">
+        <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="loja-input-nome" placeholder="Ex: Burger do Zé" oninput="atualizarPainel()"></div>
+        <div class="form-group"><label class="form-label">Categoria</label><input class="form-input" id="loja-input-categoria" placeholder="Ex: Hambúrgueres" oninput="atualizarPainel()"></div>
+        <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="loja-input-desc" placeholder="Sobre a barraca..."></textarea></div>
+        <button class="btn-primary" onclick="salvarLoja()">Salvar alterações</button>
+      </div>
+    </div>
+    <div class="bottom-nav" id="nav-loja"></div>
+  </div>
+
+</div>
+
+<script>
+  // ================== DADOS ==================
+  let loja = { nome: "", categoria: "", descricao: "", logo: "", banner: "", aberta: false };
+  let produtos = [];
+  let pedidos = [];
+  let produtoEditandoId = null;
+  let produtoImagemAtual = '';
+  let lojaBannerAtual = '', lojaLogoAtual = '';
+  let pedidoAbertoId = null;
+
+  // ================== NAV ==================
+  function criarNav(telaAtiva) {
+    return `
+      <div class="nav-item ${telaAtiva === 'painel' ? 'active' : ''}" onclick="irPara('painel')"><div class="nav-icon">🏠</div><div>Painel</div></div>
+      <div class="nav-item ${telaAtiva === 'produtos' ? 'active' : ''}" onclick="irPara('produtos')"><div class="nav-icon">🧺</div><div>Produtos</div></div>
+      <div class="nav-item ${telaAtiva === 'pedidos' ? 'active' : ''}" onclick="irPara('pedidos')"><div class="nav-icon">📋</div><div>Pedidos</div></div>
+      <div class="nav-item ${telaAtiva === 'loja' ? 'active' : ''}" onclick="irPara('loja')"><div class="nav-icon">🏪</div><div>Loja</div></div>
+    `;
+  }
+  document.getElementById('nav-painel').innerHTML = criarNav('painel');
+  document.getElementById('nav-produtos').innerHTML = criarNav('produtos');
+  document.getElementById('nav-pedidos-tela').innerHTML = criarNav('pedidos');
+  document.getElementById('nav-loja').innerHTML = criarNav('loja');
+
+  function irPara(tela) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(tela).classList.add('active');
+    if (tela === 'produtos') renderizarProdutos();
+    if (tela === 'pedidos') renderizarPedidos();
+    if (tela === 'loja') carregarFormLoja();
+    if (tela === 'painel') atualizarPainel();
+  }
+
+  // ================== PAINEL ==================
+  function alternarStatus() { loja.aberta = document.getElementById('status-switch').checked; atualizarPainel(); }
+  function atualizarPainel() {
+    document.getElementById('painel-nome').textContent = loja.nome || "Minha barraca";
+    document.getElementById('painel-categoria').textContent = loja.categoria || "Adicione uma categoria";
+    const logo = document.getElementById('painel-logo');
+    logo.src = loja.logo || "";
+    logo.style.visibility = loja.logo ? 'visible' : 'hidden';
+    document.getElementById('status-switch').checked = loja.aberta;
+    const sub = document.getElementById('status-sub');
+    sub.textContent = loja.aberta ? "Aberto — visível para clientes" : "Fechado";
+    sub.className = "status-toggle-sub " + (loja.aberta ? "aberto" : "fechado");
+    document.getElementById('stat-produtos').textContent = produtos.length;
+    const ativos = pedidos.filter(p => p.status !== 'cancelado');
+    document.getElementById('stat-pedidos').textContent = ativos.length;
+    const total = ativos.reduce((s, p) => s + (p.valorNumerico || 0), 0);
+    document.getElementById('stat-vendas').textContent = "R$ " + total.toLocaleString('pt-BR', {minimumFractionDigits: 0});
+
+    const chart = document.getElementById('chart-vendas');
+    const dias = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+    const vendas = [0, 0, 0, 0, 0, 0, 0];
+    chart.innerHTML = dias.map((d, i) => {
+      const h = Math.min(100, vendas[i] * 3 || 4);
+      return `<div class="bar-item"><div class="bar" style="height:${h}px;background:${i===6 ? 'var(--laranja)' : 'var(--azul)'}"></div><div class="bar-label">${d}</div></div>`;
+    }).join('');
+
+    const lista = document.getElementById('lista-pedidos-recentes');
+    const vazio = document.getElementById('pedidos-vazio');
+    lista.innerHTML = '';
+    const ativosRecentes = pedidos.filter(p => p.status !== 'cancelado');
+    if (ativosRecentes.length === 0) { vazio.style.display = 'block'; } else { vazio.style.display = 'none'; ativosRecentes.slice(0,3).forEach(p => lista.innerHTML += criarPedidoCard(p)); }
+  }
+
+  // ================== PRODUTOS ==================
+  function renderizarProdutos() {
+    const lista = document.getElementById('lista-produtos');
+    const vazio = document.getElementById('produtos-vazio');
+    const cont = document.getElementById('produtos-contador');
+    lista.innerHTML = '';
+    cont.textContent = produtos.length ? produtos.length + ' itens' : '';
+    if (produtos.length === 0) { vazio.style.display = 'flex'; return; }
+    vazio.style.display = 'none';
+    produtos.forEach(p => {
+      lista.innerHTML += `
+        <div class="produto-card" id="produto-${p.id}">
+          <img class="produto-card-img" src="${p.imagem || ''}" style="${p.imagem ? '' : 'visibility:hidden;'}">
+          <div class="produto-card-info">
+            <div class="produto-card-nome">${p.nome}</div>
+            <div class="produto-card-desc">${p.descricao || p.categoria || ''}</div>
+            <div class="produto-card-bottom">
+              <div class="produto-card-preco">${p.preco}</div>
+              <span class="toggle-pill ${p.disponivel ? 'on' : 'off'}">${p.disponivel ? 'Disponível' : 'Indisponível'}</span>
+              <span class="estoque-badge">📦 ${p.estoque || 0}</span>
+            </div>
+          </div>
+          <div class="produto-card-actions">
+            <button class="icon-btn" onclick="abrirFormProduto(${p.id})">✎</button>
+            <button class="icon-btn danger" onclick="excluirProdutoPorId(${p.id})">🗑</button>
+          </div>
+        </div>`;
+    });
+  }
+
+  function excluirProdutoPorId(id) {
+    const p = produtos.find(x => x.id === id);
+    if (!p) return;
+    if (confirm(`Excluir "${p.nome}" do cardápio?`)) {
+      produtos = produtos.filter(x => x.id !== id);
+      renderizarProdutos();
+      atualizarPainel();
+    }
+  }
+
+  function abrirFormProduto(id = null) {
+    produtoEditandoId = id;
+    const btnExcluir = document.getElementById('btn-excluir-produto');
+    if (id) {
+      const p = produtos.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('form-titulo').textContent = "Editar produto";
+      document.getElementById('input-nome').value = p.nome;
+      document.getElementById('input-desc').value = p.descricao || '';
+      document.getElementById('input-preco').value = p.preco;
+      document.getElementById('input-categoria-produto').value = p.categoria || '';
+      document.getElementById('input-disponivel').value = p.disponivel ? "1" : "0";
+      document.getElementById('input-estoque').value = p.estoque || 0;
+      produtoImagemAtual = p.imagem || '';
+      btnExcluir.style.display = 'block';
+    } else {
+      document.getElementById('form-titulo').textContent = "Novo produto";
+      document.getElementById('input-nome').value = '';
+      document.getElementById('input-desc').value = '';
+      document.getElementById('input-preco').value = '';
+      document.getElementById('input-categoria-produto').value = '';
+      document.getElementById('input-disponivel').value = "1";
+      document.getElementById('input-estoque').value = 10;
+      produtoImagemAtual = '';
+      btnExcluir.style.display = 'none';
+    }
+    exibirImagemProduto();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('produto-form').classList.add('active');
+  }
+
+  function handleProdutoImagem(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) { produtoImagemAtual = ev.target.result; exibirImagemProduto(); };
+    reader.readAsDataURL(file);
+  }
+  function exibirImagemProduto() {
+    const img = document.getElementById('produto-img-tag'), icon = document.getElementById('produto-img-icon'), txt = document.getElementById('produto-img-text');
+    if (produtoImagemAtual) { img.src = produtoImagemAtual; img.style.display = 'block'; icon.style.display = 'none'; txt.textContent = 'Trocar foto'; }
+    else { img.style.display = 'none'; icon.style.display = 'block'; txt.textContent = 'Adicionar foto'; }
+  }
+
+  function parsePreco(t) { const v = parseFloat((t||'').replace(/[^\d,.]/g,'').replace(/\./g,'').replace(',','.')); return isNaN(v)?0:v; }
+
+  function salvarProduto() {
+    const nome = document.getElementById('input-nome').value.trim();
+    if (!nome) { document.getElementById('input-nome').focus(); return; }
+    let preco = document.getElementById('input-preco').value.trim();
+    if (preco && !preco.toUpperCase().startsWith('R$')) preco = 'R$ ' + preco;
+    const dados = {
+      nome,
+      descricao: document.getElementById('input-desc').value.trim(),
+      preco: preco || "R$ 0,00",
+      categoria: document.getElementById('input-categoria-produto').value.trim(),
+      disponivel: document.getElementById('input-disponivel').value === "1",
+      estoque: parseInt(document.getElementById('input-estoque').value) || 0,
+      imagem: produtoImagemAtual
+    };
+    if (produtoEditandoId) { 
+      const i = produtos.findIndex(x => x.id === produtoEditandoId); 
+      if (i !== -1) produtos[i] = { ...produtos[i], ...dados }; 
+    } else { 
+      dados.id = Date.now(); 
+      produtos.push(dados); 
+    }
+    irPara('produtos');
+  }
+
+  function excluirProduto() { 
+    if (produtoEditandoId) {
+      excluirProdutoPorId(produtoEditandoId);
+      if (!produtos.find(x => x.id === produtoEditandoId)) irPara('produtos');
+    }
+  }
+
+  // ================== PEDIDOS ==================
+  const STATUS_LABEL = { pendente:'Pendente', preparo:'Em preparo', pronto:'Pronto', concluido:'Concluído', cancelado:'Cancelado' };
+  const STATUS_BADGE = { pendente:'badge-pendente', preparo:'badge-preparo', pronto:'badge-pronto', concluido:'badge-pronto', cancelado:'badge-cancelado' };
+  function criarPedidoCard(p) {
+    return `<div class="pedido-card" onclick="abrirPedidoSheet(${p.id})">
+      <div class="pedido-icon">🛍️</div>
+      <div class="pedido-info">
+        <div class="pedido-top"><div class="pedido-cliente">${p.cliente}</div><span class="badge ${STATUS_BADGE[p.status]}">${STATUS_LABEL[p.status]}</span></div>
+        <div class="pedido-itens">${p.itens}</div>
+        <div class="pedido-hora">${p.hora}</div>
+      </div>
+      <div class="pedido-valor">${p.valor}</div>
+    </div>`;
+  }
+  function renderizarPedidos() {
+    const lista = document.getElementById('lista-pedidos-todos'), vazio = document.getElementById('pedidos-todos-vazio');
+    lista.innerHTML = '';
+    const ativos = pedidos.filter(p => p.status !== 'cancelado');
+    if (ativos.length === 0) { vazio.style.display = 'flex'; return; }
+    vazio.style.display = 'none';
+    ativos.forEach(p => lista.innerHTML += criarPedidoCard(p));
+  }
+
+  function abrirPedidoSheet(id) {
+    pedidoAbertoId = id;
+    const p = pedidos.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('sheet-content').innerHTML = `
+      <div class="sheet-title">${p.cliente}</div>
+      <div class="sheet-sub">Pedido feito às ${p.hora}</div>
+      <div class="sheet-row"><span class="sheet-row-label">Itens</span><span class="sheet-row-value">${p.itens}</span></div>
+      <div class="sheet-row"><span class="sheet-row-label">Total</span><span class="sheet-row-value">${p.valor}</span></div>
+      <div class="sheet-row"><span class="sheet-row-label">Status</span><span class="badge ${STATUS_BADGE[p.status]}">${STATUS_LABEL[p.status]}</span></div>
+      <div class="sheet-actions" id="sheet-acoes"></div>
+    `;
+    const acoes = document.getElementById('sheet-acoes');
+    if (p.status === 'pendente') {
+      acoes.innerHTML = `<button class="btn-primary" onclick="mudarStatusPedido('preparo')">Aceitar pedido</button><button class="btn-outline" onclick="mudarStatusPedido('cancelado')">Recusar pedido</button>`;
+    } else if (p.status === 'preparo') {
+      acoes.innerHTML = `<button class="btn-primary" onclick="mudarStatusPedido('pronto')">Marcar como pronto</button><button class="btn-outline" onclick="mudarStatusPedido('cancelado')">Cancelar pedido</button>`;
+    } else if (p.status === 'pronto') {
+      acoes.innerHTML = `<button class="btn-primary" onclick="mudarStatusPedido('concluido')">Confirmar entrega</button>`;
+    } else {
+      acoes.innerHTML = `<button class="btn-outline" style="color:var(--texto-sec);border-color:var(--borda);" onclick="fecharSheet()">Fechar</button>`;
+    }
+    document.getElementById('sheet-overlay').classList.add('active');
+  }
+
+  function mudarStatusPedido(novo) {
+    const p = pedidos.find(x => x.id === pedidoAbertoId);
+    if (!p) return;
+    p.status = novo;
+    renderizarPedidos(); 
+    atualizarPainel();
+    if (novo === 'cancelado') {
+      fecharSheet();
+    } else {
+      abrirPedidoSheet(pedidoAbertoId);
+    }
+  }
+
+  function fecharSheet() { document.getElementById('sheet-overlay').classList.remove('active'); pedidoAbertoId = null; }
+
+  // ================== LOJA ==================
+  function carregarFormLoja() {
+    document.getElementById('loja-input-nome').value = loja.nome;
+    document.getElementById('loja-input-categoria').value = loja.categoria;
+    document.getElementById('loja-input-desc').value = loja.descricao;
+    lojaBannerAtual = loja.banner || '';
+    lojaLogoAtual = loja.logo || '';
+    exibirImagemLoja();
+  }
+  function exibirImagemLoja() {
+    const b = document.getElementById('loja-banner-preview'), l = document.getElementById('loja-logo-preview');
+    b.src = lojaBannerAtual || ''; b.style.display = lojaBannerAtual ? 'block' : 'none';
+    l.src = lojaLogoAtual || ''; l.style.display = lojaLogoAtual ? 'block' : 'none';
+  }
+  function handleLojaImagem(e, tipo) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) { 
+      if (tipo === 'banner') lojaBannerAtual = ev.target.result; 
+      else lojaLogoAtual = ev.target.result; 
+      exibirImagemLoja(); 
+    };
+    reader.readAsDataURL(file);
+  }
+  function salvarLoja() {
+    loja.nome = document.getElementById('loja-input-nome').value.trim();
+    loja.categoria = document.getElementById('loja-input-categoria').value.trim();
+    loja.descricao = document.getElementById('loja-input-desc').value.trim();
+    loja.banner = lojaBannerAtual;
+    loja.logo = lojaLogoAtual;
+    atualizarPainel();
+    irPara('painel');
+  }
+
+  // ================== START ==================
+  // BANCO DE DADOS ZERADO — sem produtos e sem pedidos
+  atualizarPainel();
+  renderizarProdutos();
+  renderizarPedidos();
+</script>
+</body>
+</html>
